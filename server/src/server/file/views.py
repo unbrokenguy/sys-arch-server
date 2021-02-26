@@ -3,11 +3,15 @@ from django.views.decorators.csrf import csrf_exempt
 from file.forms import UploadFileForm
 import os
 from pathlib import Path
+import mimetypes
+from file.file_types import FILE_TYPES
 
-FILE_TYPES = {}
 
-
-def process_file_type(file_type):
+def process_file_type(file):
+    file_type = mimetypes.guess_type(file)[0]
+    for t in FILE_TYPES.keys():
+        if file_type in FILE_TYPES[t]:
+            return t
     return file_type
 
 
@@ -18,7 +22,8 @@ def file_upload(request):
         if form.is_valid():
             file = request.FILES["file"]
             file_name = request.FILES["file"].name
-            p = Path(f'../../files/{form.cleaned_data["file_type"]}')
+            file_type = process_file_type(file_name)
+            p = Path(f"../../files/{file_type}")
             p.mkdir(parents=True, exist_ok=True)
             if not os.path.isfile(f"{p}/{file_name}"):
                 with open(f"{p}/{file_name}", "wb+") as destination:

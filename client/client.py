@@ -79,10 +79,10 @@ class FileManager:
     def file_upload(self, path):
         data = {
             "description": "MY AWESOME FILE",
-            "file_type": "picture",
         }
         files = {"file": open(path, "rb")}
         r = requests.post(url=f"{self.url}/upload/", headers={}, data=data, files=files)
+        print(r)
         handle_response(r)
 
     def print_choose_dict(self, data):
@@ -122,7 +122,7 @@ class FileManager:
 
     def file_download(self, file_type, file_name):
         r = requests.get(
-            url=f"{self.url}/download?file_type=picture&file_name=0LcYs0Q6pUQ.jpg",
+            url=f"{self.url}/download?file_type={file_type}&file_name={file_name}",
             stream=True,
         )
         if "status" in r.text:
