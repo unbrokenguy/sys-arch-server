@@ -1,0 +1,8 @@
+/src/db.sqlite3
+/src/poetry.lock
+.idea/
+__pycache__/
+**/ __pycache__
+.python-version 
+**/migrations
+

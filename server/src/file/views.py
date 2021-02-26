@@ -22,6 +22,13 @@ def process_file_type(file):
     return file_type
 
 
+def write_str_num_user_input(file_type, file_name, user_input):
+    p = Path(f"{PATH_TO_STORAGE}/{file_type}")
+    p.mkdir(parents=True, exist_ok=True)
+    with open(f"{p}/{file_name}", "a") as destination:
+        destination.write(f"{user_input}\n")
+
+
 @csrf_exempt
 def file_upload(request):
     if request.method == "POST":
@@ -34,17 +41,11 @@ def file_upload(request):
                     if re.match(number_regex, user_input) is not None:
                         file_type = process_file_type("user_input_number")
                         file_name = "numbers.txt"
-                        p = Path(f"{PATH_TO_STORAGE}/{file_type}")
-                        p.mkdir(parents=True, exist_ok=True)
-                        with open(f"{p}/{file_name}", "a") as destination:
-                            destination.write(f"{user_input}\n")
+                        write_str_num_user_input(file_type, file_name, user_input)
                     else:
                         file_type = process_file_type("user_input_string")
                         file_name = "strings.txt"
-                        p = Path(f"{PATH_TO_STORAGE}/{file_type}")
-                        p.mkdir(parents=True, exist_ok=True)
-                        with open(f"{p}/{file_name}", "a") as destination:
-                            destination.write(f"{user_input}\n")
+                        write_str_num_user_input(file_type, file_name, user_input)
                     return JsonResponse(
                         data={
                             "status": "success",
@@ -91,7 +92,7 @@ def file_upload(request):
             return JsonResponse(data={"status": "fail", "message": "Неверные данные."})
 
 
-def handle_str_int_response(file_path, file_name):
+def handle_str_num_response(file_path, file_name):
     file = open(file_path, "r")
     lines = file.readlines()
     file.close()
@@ -111,6 +112,15 @@ def handle_str_int_response(file_path, file_name):
         )
 
 
+def get_str_num_data_response(file_path):
+    file = open(file_path, "r")
+    lines = file.readlines()
+    file.close()
+    return JsonResponse(
+        data={"choose": list(map(lambda x: x.rstrip(), lines))}
+    )
+
+
 @csrf_exempt
 def file_download(request):
     if request.method == "GET":
@@ -120,19 +130,9 @@ def file_download(request):
             return JsonResponse(data={"choose": os.listdir(PATH_TO_STORAGE)})
         if file_type is not None and file_name is None:
             if "Числа" in file_type:
-                file = open(f"{PATH_TO_STORAGE}/{file_type}/numbers.txt", "r")
-                lines = file.readlines()
-                file.close()
-                return JsonResponse(
-                    data={"choose": list(map(lambda x: int(x.rstrip()), lines))}
-                )
+                return get_str_num_data_response(f"{PATH_TO_STORAGE}/{file_type}/numbers.txt")
             elif "Строки" in file_type:
-                file = open(f"{PATH_TO_STORAGE}/{file_type}/strings.txt", "r")
-                lines = file.readlines()
-                file.close()
-                return JsonResponse(
-                    data={"choose": list(map(lambda x: x.rstrip(), lines))}
-                )
+                return get_str_num_data_response(f"{PATH_TO_STORAGE}/{file_type}/strings.txt")
             else:
                 return JsonResponse(
                     data={"choose": os.listdir(f"{PATH_TO_STORAGE}/{file_type}/")}
@@ -140,14 +140,14 @@ def file_download(request):
         if "Числа" in file_type and file_name is not None:
             file_path = f"{PATH_TO_STORAGE}/{file_type}/numbers.txt"
             if re.match(r"^[-+]?\d+([.,]\d+)?$", file_name) is not None:
-                return handle_str_int_response(file_path, file_name)
+                return handle_str_num_response(file_path, file_name)
             else:
                 return JsonResponse(
                     data={"status": "fail", "message": "Некорректный формат числа."}
                 )
         if "Строки" in file_type and file_name is not None:
             file_path = f"{PATH_TO_STORAGE}/{file_type}/strings.txt"
-            return handle_str_int_response(file_path, file_name)
+            return handle_str_num_response(file_path, file_name)
         else:
             try:
                 path = f"{PATH_TO_STORAGE}/{file_type}/{file_name}"

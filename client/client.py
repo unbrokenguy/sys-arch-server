@@ -35,7 +35,7 @@ def print_error(text):
 
 
 def print_choose_dict(data):
-    print(f"0) Выход.")
+    print("0) Выход.")
     for d in sorted(data.keys()):
         print(f"{int(d)}) {data[d]}.")
 
@@ -46,7 +46,7 @@ def get_choose_dict(data):
 
 class FileManager:
     def __init__(self, url):
-        p = Path(f"/files/")
+        p = Path("/files/")
         p.mkdir(parents=True, exist_ok=True)
         self.url = url
 
@@ -117,7 +117,7 @@ class FileManager:
         if user_input == "0":
             self.exit()
         if user_input not in file_types.keys():
-            print_error(f"Не является категорией")
+            print_error("Не является категорией")
             self.download()
         self.download_file(file_types[user_input])
 
@@ -130,7 +130,7 @@ class FileManager:
         if user_input == "0":
             self.exit()
         if user_input not in files.keys():
-            print_error(f"Не допустимое значение.")
+            print_error("Не допустимое значение.")
             self.download_file(file_type)
         self.file_download(file_type, files[user_input])
         self.start()
