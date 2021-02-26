@@ -2,6 +2,7 @@
 /src/poetry.lock
 .idea/
 __pycache__/
+files/
 **/ __pycache__
 .python-version 
 **/migrations
