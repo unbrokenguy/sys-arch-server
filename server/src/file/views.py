@@ -99,7 +99,7 @@ def file_upload(request):
         else:
             return JsonResponse(data={"status": "fail", "message": "Неверные данные."})
     else:
-        return HttpResponse(405)
+        return HttpResponse(status=405)
 
 
 def handle_str_num_response(file_path, file_name):
@@ -190,4 +190,4 @@ def file_download(request):
             return file_categories_or_files
         return handle_download(file_category, file_name)
     else:
-        return HttpResponse(405)
+        return HttpResponse(status=405)
