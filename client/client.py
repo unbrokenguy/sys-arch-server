@@ -145,7 +145,11 @@ class FileManager:
         elif "data" in r.text:
             data = json.loads(r.text)
             print_ok_message("Данные успешно получены.")
-            print(data["data"])
+            p = Path(f"files/{file_type}/")
+            p.mkdir(parents=True, exist_ok=True)
+            if not os.path.isfile(f"{p}/{file_name}"):
+                with open(f"{p}/{file_name}", "wb+") as destination:
+                    print(data["data"])
         else:
             if r.status_code == 200:
                 p = Path(f"files/{file_type}/")
