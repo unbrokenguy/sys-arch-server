@@ -31,7 +31,17 @@ def print_ok_message(text):
 
 
 def print_error(text):
-    print(f"{Colors.FAIL}{text}{Colors.BOLD}")
+    print(f"{Colors.FAIL}{text}{Colors.BOLD}{Colors.ENDC}")
+
+
+def print_choose_dict(data):
+    print(f"0) Выход.")
+    for d in sorted(data.keys()):
+        print(f"{int(d)}) {data[d]}.")
+
+
+def get_choose_dict(data):
+    return {str(i + 1): data["choose"][i] for i in range(len(data["choose"]))}
 
 
 class FileManager:
@@ -48,15 +58,18 @@ class FileManager:
         print(
             "Какое действие вы хотите сделать? (Ответ пишите в виде цифры)\n\t\
         0) Выход.\n\t\
-        1) Загрузить файл на сервер.\n\t\
-        2) Загрузить файл с сервера.\n"
+        1) Свободный ввод.\n\t\
+        2) Загрузить файл на сервер.\n\t\
+        3) Загрузить файл с сервера."
         )
 
         user_input = input()
         if user_input == "1":
-            self.upload()
+            self.user_input_upload()
         elif user_input == "2":
-            self.download_type()
+            self.upload()
+        elif user_input == "3":
+            self.download()
         elif user_input == "0":
             self.exit()
         else:
@@ -76,46 +89,48 @@ class FileManager:
             print_error(f"Не является файлом {path}")
             self.upload()
 
+    def user_input_upload(self):
+        print("Введите данные.")
+        data = {
+            # "description": "MY AWESOME FILE",
+            "user_input": input()
+        }
+        r = requests.post(url=f"{self.url}/upload/", headers={}, data=data)
+        handle_response(r)
+        self.start()
+
     def file_upload(self, path):
         data = {
             "description": "MY AWESOME FILE",
         }
         files = {"file": open(path, "rb")}
         r = requests.post(url=f"{self.url}/upload/", headers={}, data=data, files=files)
-        print(r)
         handle_response(r)
+        self.start()
 
-    def print_choose_dict(self, data):
-        print(f"0) Выход.")
-        for d in sorted(data.keys()):
-            print(f"{int(d)}) {data[d]}.")
-
-    def get_choose_dict(self, data):
-        return {str(i + 1): data["choose"][i] for i in range(len(data["choose"]))}
-
-    def download_type(self):
-        print("Выберите категорию файла\n")
+    def download(self):
+        print("Выберите категорию:")
         r = requests.get(url=f"{self.url}/download")
-        file_types = self.get_choose_dict(json.loads(r.text))
-        self.print_choose_dict(file_types)
+        file_types = get_choose_dict(json.loads(r.text))
+        print_choose_dict(file_types)
         user_input = input()
         if user_input == "0":
             self.exit()
         if user_input not in file_types.keys():
             print_error(f"Не является категорией")
-            self.download_type()
+            self.download()
         self.download_file(file_types[user_input])
 
     def download_file(self, file_type):
-        print("Выберите файл\n")
+        print("Выберите:")
         r = requests.get(url=f"{self.url}/download?file_type={file_type}")
-        files = self.get_choose_dict(json.loads(r.text))
-        self.print_choose_dict(files)
+        files = get_choose_dict(json.loads(r.text))
+        print_choose_dict(files)
         user_input = input()
         if user_input == "0":
             self.exit()
         if user_input not in files.keys():
-            print_error(f"Не является файлом.")
+            print_error(f"Не допустимое значение.")
             self.download_file(file_type)
         self.file_download(file_type, files[user_input])
         self.start()
@@ -127,6 +142,10 @@ class FileManager:
         )
         if "status" in r.text:
             handle_response(r)
+        elif "data" in r.text:
+            data = json.loads(r.text)
+            print_ok_message("Данные успешно получены.")
+            print(data["data"])
         else:
             if r.status_code == 200:
                 p = Path(f"files/{file_type}/")

@@ -1,4 +1,6 @@
 FILE_TYPES = {
+    "Числа": ["user_input_number"],
+    "Строки": ["user_input_string"],
     "Картинки": [
         "image/bmp",
         "image/cgm",
