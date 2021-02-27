@@ -10,11 +10,45 @@ from server.settings import MEDIA_ROOT
 import re
 
 
+@csrf_exempt
+def file_download(request):
+    if request.method == "GET":
+        file_category = request.GET.get("file_type")
+        file_name = request.GET.get("file_name")
+        if file_category is None and file_name is None:
+            return category_list()
+        if file_category is not None and file_name is None:
+            return files_list(file_category)
+        if file_category is not None and file_name is not None:
+            return handle_download(file_category, file_name)
+    else:
+        return HttpResponse(status=405)
+
+
+@csrf_exempt
+def file_upload(request):
+    if request.method == "POST":
+        # TODO: Split to UploadFileForm and UploadUserInputForm
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            user_input = request.POST.get("user_input", None)
+            if user_input is not None:
+                return handle_user_input(user_input)
+            else:
+                return handle_file_upload(request)
+        else:
+            return json_status_response(status="fail", message="Неверные данные.")
+    else:
+        return HttpResponse(status=405)
+
+
 def json_status_response(status, message):
-    return JsonResponse(data={
-        "status": f"{status}",
-        "message": f"{message}",
-    })
+    return JsonResponse(
+        data={
+            "status": f"{status}",
+            "message": f"{message}",
+        }
+    )
 
 
 def guess_file_category(file):
@@ -67,28 +101,17 @@ def handle_file_upload(request):
         p.mkdir(parents=True, exist_ok=True)
         if not os.path.isfile(f"{p}/{file_name}"):
             save_file(file, f"{p}/{file_name}")
-            return json_status_response(status="success", message="Файл загружен успешно.")
+            return json_status_response(
+                status="success", message="Файл загружен успешно."
+            )
         else:
-            return json_status_response(status="fail", message="Файл с таким именем уже загружен.")
+            return json_status_response(
+                status="fail", message="Файл с таким именем уже загружен."
+            )
     except MultiValueDictKeyError:
-        return json_status_response(status="fail", message="Файл для загрузки выбран не был.")
-
-
-@csrf_exempt
-def file_upload(request):
-    if request.method == "POST":
-        # TODO: Split to UploadFileForm and UploadUserInputForm
-        form = UploadFileForm(request.POST, request.FILES)
-        if form.is_valid():
-            user_input = request.POST.get("user_input", None)
-            if user_input is not None:
-                return handle_user_input(user_input)
-            else:
-                return handle_file_upload(request)
-        else:
-            return json_status_response(status="fail", message="Неверные данные.")
-    else:
-        return HttpResponse(status=405)
+        return json_status_response(
+            status="fail", message="Файл для загрузки выбран не был."
+        )
 
 
 def data_response(file_path, file_name):
@@ -124,13 +147,13 @@ def file_response(file_category, file_name):
         os.remove(path)
         return response
     except IOError:
-        return json_status_response(status="fail", message="Запрашиваемый файл не существует.")
+        return json_status_response(
+            status="fail", message="Запрашиваемый файл не существует."
+        )
 
 
 def files_list_response(file_category):
-    return JsonResponse(
-        data={"choose": os.listdir(f"{MEDIA_ROOT}/{file_category}/")}
-    )
+    return JsonResponse(data={"choose": os.listdir(f"{MEDIA_ROOT}/{file_category}/")})
 
 
 def numbers_list_response():
@@ -141,7 +164,7 @@ def strings_list_response():
     return data_list_response(f"{MEDIA_ROOT}/Строки/strings.txt")
 
 
-def category_list_response():
+def category_list():
     return JsonResponse(data={"choose": os.listdir(MEDIA_ROOT)})
 
 
@@ -158,6 +181,15 @@ def string_download(file_name):
     return data_response(file_path, file_name)
 
 
+def files_list(file_category):
+    if "Числа" in file_category:
+        return numbers_list_response()
+    elif "Строки" in file_category:
+        return strings_list_response()
+    else:
+        return files_list_response(file_category)
+
+
 def handle_download(file_category, file_name):
     if "Числа" in file_category and file_name is not None:
         return number_download(file_name)
@@ -165,23 +197,3 @@ def handle_download(file_category, file_name):
         return string_download(file_name)
     else:
         return file_response(file_category, file_name)
-
-
-@csrf_exempt
-def file_download(request):
-    if request.method == "GET":
-        file_category = request.GET.get("file_type")
-        file_name = request.GET.get("file_name")
-        if file_category is None and file_name is None:
-            return category_list_response()
-        if file_category is not None and file_name is None:
-            if "Числа" in file_category:
-                return numbers_list_response()
-            elif "Строки" in file_category:
-                return strings_list_response()
-            else:
-                return files_list_response(file_category)
-        if file_category is not None and file_name is not None:
-            return handle_download(file_category, file_name)
-    else:
-        return HttpResponse(status=405)
