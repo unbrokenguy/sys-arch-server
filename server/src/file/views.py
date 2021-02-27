@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 import mimetypes
 from file.file_types import FILE_TYPES
-from manage import PATH_TO_STORAGE
+from server.settings import MEDIA_ROOT
 import re
 
 
@@ -23,7 +23,7 @@ def process_file_category(file):
 
 
 def write_str_num_user_input(file_type, file_name, user_input):
-    p = Path(f"{PATH_TO_STORAGE}/{file_type}")
+    p = Path(f"{MEDIA_ROOT}/{file_type}")
     p.mkdir(parents=True, exist_ok=True)
     with open(f"{p}/{file_name}", "a") as destination:
         destination.write(f"{user_input}\n")
@@ -57,7 +57,7 @@ def process_file_upload(request):
         file = request.FILES["file"]
         file_category = process_file_category(file)
         file_name = request.FILES["file"].name
-        p = Path(f"{PATH_TO_STORAGE}/{file_category}")
+        p = Path(f"{MEDIA_ROOT}/{file_category}")
         p.mkdir(parents=True, exist_ok=True)
         if not os.path.isfile(f"{p}/{file_name}"):
             with open(f"{p}/{file_name}", "wb+") as destination:
@@ -131,7 +131,7 @@ def get_str_num_data_response(file_path):
 
 def process_file_download(file_category, file_name):
     try:
-        path = f"{PATH_TO_STORAGE}/{file_category}/{file_name}"
+        path = f"{MEDIA_ROOT}/{file_category}/{file_name}"
         file = open(path, "rb")
         response = FileResponse(file)
         os.remove(path)
@@ -147,26 +147,26 @@ def process_file_download(file_category, file_name):
 
 def get_file_categories_or_files(file_category, file_name):
     if file_category is None and file_name is None:
-        return JsonResponse(data={"choose": os.listdir(PATH_TO_STORAGE)})
+        return JsonResponse(data={"choose": os.listdir(MEDIA_ROOT)})
     if file_category is not None and file_name is None:
         if "Числа" in file_category:
             return get_str_num_data_response(
-                f"{PATH_TO_STORAGE}/{file_category}/numbers.txt"
+                f"{MEDIA_ROOT}/{file_category}/numbers.txt"
             )
         elif "Строки" in file_category:
             return get_str_num_data_response(
-                f"{PATH_TO_STORAGE}/{file_category}/strings.txt"
+                f"{MEDIA_ROOT}/{file_category}/strings.txt"
             )
         else:
             return JsonResponse(
-                data={"choose": os.listdir(f"{PATH_TO_STORAGE}/{file_category}/")}
+                data={"choose": os.listdir(f"{MEDIA_ROOT}/{file_category}/")}
             )
     return None
 
 
 def handle_download(file_category, file_name):
     if "Числа" in file_category and file_name is not None:
-        file_path = f"{PATH_TO_STORAGE}/{file_category}/numbers.txt"
+        file_path = f"{MEDIA_ROOT}/{file_category}/numbers.txt"
         if re.match(r"^[-+]?\d+([.,]\d+)?$", file_name) is not None:
             return handle_str_num_response(file_path, file_name)
         else:
@@ -174,7 +174,7 @@ def handle_download(file_category, file_name):
                 data={"status": "fail", "message": "Некорректный формат числа."}
             )
     if "Строки" in file_category and file_name is not None:
-        file_path = f"{PATH_TO_STORAGE}/{file_category}/strings.txt"
+        file_path = f"{MEDIA_ROOT}/{file_category}/strings.txt"
         return handle_str_num_response(file_path, file_name)
     else:
         return process_file_download(file_category, file_name)
