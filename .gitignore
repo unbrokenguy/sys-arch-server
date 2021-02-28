@@ -1,5 +1,5 @@
-/src/db.sqlite3
-/src/poetry.lock
+*.sqlite3
+*.lock
 .idea/
 __pycache__/
 *.py[cod]
