@@ -14,7 +14,6 @@ class Colors:
 
 
 class Tools:
-
     @staticmethod
     def print_ok_message(text):
         print(f"{Colors.OKGREEN}{text}{Colors.ENDC}")

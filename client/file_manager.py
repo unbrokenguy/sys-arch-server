@@ -4,7 +4,6 @@ from pathlib import Path
 
 
 class State(ABC):
-
     def __init__(self):
         self._context = None
 
@@ -41,7 +40,10 @@ class FileManager:
         self.curr_state = state
 
     def previous(self):
-        self.prev_state, self.curr_state = self.curr_state, self.prev_state,
+        self.prev_state, self.curr_state = (
+            self.curr_state,
+            self.prev_state,
+        )
 
     def execute(self):
         self.curr_state.action()
