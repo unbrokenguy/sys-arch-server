@@ -36,5 +36,5 @@ poetry shell
 
 #### Start client
 ```shell
-python client.py
+python main.py
 ```
