@@ -81,7 +81,9 @@ def handle_user_input(user_input):
             file_category = guess_file_category("user_input_string")
             file_name = "strings.txt"
             save_user_input(file_category, file_name, user_input)
-        return json_status_response(status="success", message="Данные загружены успешно.")
+        return json_status_response(
+            status="success", message="Данные загружены успешно."
+        )
     except FileNotFoundError:
         return json_status_response(status="fail", message="Данные загружены не были.")
 
