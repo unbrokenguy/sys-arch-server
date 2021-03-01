@@ -6,5 +6,4 @@ __pycache__/
 files/
 **/ __pycache__
 .python-version 
-**/migrations
 
