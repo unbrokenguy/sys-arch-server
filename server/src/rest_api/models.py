@@ -1,8 +1,4 @@
-import os
-
 from django.db import models
-from django.dispatch import receiver
-
 from rest_api.utils import file_upload
 
 

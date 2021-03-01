@@ -1,6 +1,5 @@
 import json
 from pathlib import Path
-import requests
 import os
 from file_manager import State
 from utils import Tools

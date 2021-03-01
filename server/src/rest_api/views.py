@@ -1,4 +1,3 @@
-import copy
 from django.http import JsonResponse, FileResponse
 from django.core import serializers
 from rest_framework import viewsets, mixins
