@@ -1,6 +1,19 @@
+import mimetypes
+
+
+def file_upload(instance, filename: str) -> str:
+    return f'{guess_file_category(filename)}/{filename}'
+
+
+def guess_file_category(file_name):
+    file_type = mimetypes.guess_type(file_name)[0]
+    for c in FILE_TYPES.keys():
+        if file_type in FILE_TYPES[c]:
+            return c
+    return file_type
+
+
 FILE_TYPES = {
-    "Числа": ["user_input_number"],
-    "Строки": ["user_input_string"],
     "Картинки": [
         "image/bmp",
         "image/cgm",
@@ -333,7 +346,7 @@ FILE_TYPES = {
         "application/vnd.fujixerox.docuworks.binder",
         "application/vnd.fuzzysheet",
         "application/vnd.genomatix.tuxedo",
-        "application/vnd.geogebra.file",
+        "application/vnd.geogebra.api",
         "application/vnd.geogebra.tool",
         "application/vnd.geometry-explorer",
         "application/vnd.geonext",
@@ -630,7 +643,7 @@ FILE_TYPES = {
         "application/x-gnumeric",
         "application/x-gtar",
         "application/x-hdf",
-        "application/x-java-jnlp-file",
+        "application/x-java-jnlp-api",
         "application/x-latex",
         "application/x-mobipocket-ebook",
         "application/x-ms-application",
