@@ -44,14 +44,13 @@ class UploadState(State):
 
 
 class DownloadState(State):
-
     def __init__(self):
         super().__init__()
         self.actions = dict.copy(base_actions)
         self.actions.update({"Выбрать категорию": StartState})
 
     def download_file(self, category, file):
-        response = self.context.api.get_file(file['id'])
+        response = self.context.api.get_file(file["id"])
         if response.status_code == 200:
             path = Path(f"{self.context.storage_path}/{category['name']}/")
             path.mkdir(parents=True, exist_ok=True)
@@ -69,13 +68,13 @@ class DownloadState(State):
         return choices
 
     def download_choices(self, category, unpack_value):
-        response = self.context.api.get_category_data(category['id'])
+        response = self.context.api.get_category_data(category["id"])
         values = json.loads(response.text)
         choices = self.format_to_choose(values, unpack_value)
         return values, choices
 
     def handle_user_input_download(self, category):
-        values, choices = self.download_choices(category, 'value')
+        values, choices = self.download_choices(category, "value")
         choice = input()
         if choices[choice] in base_actions.keys():
             return base_actions[values[choice]]
@@ -84,15 +83,15 @@ class DownloadState(State):
         else:
             user_input = {}
             for d in values:
-                if d['value'] == choices[choice]:
+                if d["value"] == choices[choice]:
                     user_input = d
-            response = self.context.api.get_user_input(user_input['id'])
+            response = self.context.api.get_user_input(user_input["id"])
             if response.status_code == 200:
                 Tools.print_ok_message("Данные успешно получены.")
-                print(json.loads(response.text)['value'])
+                print(json.loads(response.text)["value"])
 
     def handle_file_download(self, category):
-        files, choices = self.download_choices(category, 'value')
+        files, choices = self.download_choices(category, "value")
         file_name_input = input()
         if choices[file_name_input] in base_actions.keys():
             return base_actions[files[file_name_input]]
@@ -101,7 +100,7 @@ class DownloadState(State):
         else:
             file = 0
             for d in files:
-                if d['value'] == choices[file_name_input]:
+                if d["value"] == choices[file_name_input]:
                     file = d
             self.download_file(category, file)
         return None
@@ -112,7 +111,7 @@ class DownloadState(State):
 
     def handle_download(self):
         categories = json.loads(self.context.api.get_categories().text)
-        choices = self.format_to_choose(categories, 'name')
+        choices = self.format_to_choose(categories, "name")
         category_input = input()
         if category_input not in choices.keys():
             Tools.print_error("Пожалуйста введите корректные данные.")
@@ -122,9 +121,9 @@ class DownloadState(State):
             category = {}
             is_file = True
             for d in categories:
-                if d['name'] == choices[category_input]:
+                if d["name"] == choices[category_input]:
                     category = d
-                    if d['name'] == "Ручной ввод":
+                    if d["name"] == "Ручной ввод":
                         is_file = False
             if is_file:
                 return self.handle_file_download(category)

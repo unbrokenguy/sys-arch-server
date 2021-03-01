@@ -8,9 +8,13 @@ from rest_api.serializers import UserInputSerializer, FileSerializer, CategorySe
 from rest_api.models import UserInput, File, Category
 
 
-class FileViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin,
-                  mixins.RetrieveModelMixin):
-    parser_classes = (FormParser, MultiPartParser,)
+class FileViewSet(
+    viewsets.GenericViewSet, mixins.CreateModelMixin, mixins.RetrieveModelMixin
+):
+    parser_classes = (
+        FormParser,
+        MultiPartParser,
+    )
     permission_classes = [AllowAny]
     queryset = File.objects.all()
     serializer_class = FileSerializer
@@ -27,8 +31,9 @@ class FileViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin,
         return response
 
 
-class UserInputViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin,
-                       mixins.RetrieveModelMixin):
+class UserInputViewSet(
+    viewsets.GenericViewSet, mixins.CreateModelMixin, mixins.RetrieveModelMixin
+):
     permission_classes = [AllowAny]
     queryset = UserInput.objects.all()
     serializer_class = UserInputSerializer
@@ -40,8 +45,9 @@ class UserInputViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin,
         return JsonResponse({})
 
 
-class CategoryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin,
-                      mixins.RetrieveModelMixin):
+class CategoryViewSet(
+    viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin
+):
     permission_classes = [AllowAny]
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
@@ -50,9 +56,12 @@ class CategoryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin,
         files = File.objects.filter(category=self.get_object())
         user_input = UserInput.objects.filter(category=self.get_object())
         if files:
-            raw_data = serializers.serialize('python', files)
-            data = [{'id': d['pk'], 'value': str(d['fields']['file']).split('/')[1]} for d in raw_data]
+            raw_data = serializers.serialize("python", files)
+            data = [
+                {"id": d["pk"], "value": str(d["fields"]["file"]).split("/")[1]}
+                for d in raw_data
+            ]
         else:
-            raw_data = serializers.serialize('python', user_input)
-            data = [{'id': d['pk'], 'value': d['fields']['value']} for d in raw_data]
+            raw_data = serializers.serialize("python", user_input)
+            data = [{"id": d["pk"], "value": d["fields"]["value"]} for d in raw_data]
         return JsonResponse(data, safe=False)

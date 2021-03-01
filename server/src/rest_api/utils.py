@@ -2,7 +2,7 @@ import mimetypes
 
 
 def file_upload(instance, filename: str) -> str:
-    return f'{guess_file_category(filename)}/{filename}'
+    return f"{guess_file_category(filename)}/{filename}"
 
 
 def guess_file_category(file_name):

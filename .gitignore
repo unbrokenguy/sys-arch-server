@@ -5,5 +5,5 @@ __pycache__/
 *.py[cod]
 files/
 **/ __pycache__
-.python-version 
+.python-version
 

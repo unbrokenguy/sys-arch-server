@@ -28,13 +28,16 @@ urlpatterns = [
 
 docs_schema_view = get_schema_view(
     openapi.Info(
-        title='Projects API',
-        default_version=f'v1',
-    ), url='http://127.0.0.1:8000/docs/swagger/', public=True, permission_classes=(IsAuthenticated,),
+        title="Projects API",
+        default_version=f"v1",
+    ),
+    url="http://127.0.0.1:8000/docs/swagger/",
+    public=True,
+    permission_classes=(IsAuthenticated,),
 )
 
 if settings.DEBUG:
     docs_urls = [
-        path('swagger/', docs_schema_view.with_ui('swagger'), name='schema-swagger-ui'),
+        path("swagger/", docs_schema_view.with_ui("swagger"), name="schema-swagger-ui"),
     ]
-    urlpatterns += [path('docs/', include(docs_urls))]
+    urlpatterns += [path("docs/", include(docs_urls))]
