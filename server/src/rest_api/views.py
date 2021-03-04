@@ -23,7 +23,7 @@ class FileViewSet(
 
     def retrieve(self, request, *args, **kwargs):
         file = self.get_object()
-        actual_file = open(file.file.path, "rb")
+        actual_file = open(file.file.path, 'rb')
         response = FileResponse(actual_file)
         file.file.delete()
         file.delete()
@@ -41,7 +41,11 @@ class UserInputViewSet(
         return self.create(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
-        return JsonResponse({})
+        user_input = self.get_object()
+        user_input_id = user_input.pk
+        user_input_value = user_input.value
+        user_input.delete()
+        return JsonResponse({'id': user_input_id, 'value': user_input_value}, safe=False)
 
 
 class CategoryViewSet(
@@ -55,12 +59,12 @@ class CategoryViewSet(
         files = File.objects.filter(category=self.get_object())
         user_input = UserInput.objects.filter(category=self.get_object())
         if files:
-            raw_data = serializers.serialize("python", files)
+            raw_data = serializers.serialize('python', files)
             data = [
-                {"id": d["pk"], "value": str(d["fields"]["file"]).split("/")[1]}
+                {'id': d['pk'], 'value': str(d['fields']['file']).split('/')[1]}
                 for d in raw_data
             ]
         else:
-            raw_data = serializers.serialize("python", user_input)
-            data = [{"id": d["pk"], "value": d["fields"]["value"]} for d in raw_data]
+            raw_data = serializers.serialize('python', user_input)
+            data = [{'id': d['pk'], 'value': d['fields']['value']} for d in raw_data]
         return JsonResponse(data, safe=False)
