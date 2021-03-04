@@ -3,15 +3,10 @@
 import os
 import sys
 from pathlib import Path
-from file.file_types import FILE_TYPES
-from server.settings import MEDIA_ROOT
 
 
 def main():
     """Run administrative tasks."""
-    for i in FILE_TYPES.keys():
-        p = Path(f"{MEDIA_ROOT}/{i}")
-        p.mkdir(parents=True, exist_ok=True)
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
     try:
         from django.core.management import execute_from_command_line

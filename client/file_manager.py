@@ -1,6 +1,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from pathlib import Path
+from server_api import ServerApi
 
 
 class State(ABC):
@@ -28,9 +29,9 @@ class FileManager:
     curr_state = None
 
     def __init__(self, state: State, url):
-        self.storage_path = Path("/files/")
+        self.storage_path = Path("files/")
         self.storage_path.mkdir(parents=True, exist_ok=True)
-        self.server_url = url
+        self.api = ServerApi(url)
         self.next(state)
 
     def next(self, state: State):
