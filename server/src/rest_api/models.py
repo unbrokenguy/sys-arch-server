@@ -9,9 +9,9 @@ class Category(models.Model):
 
 class File(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    file = models.FileField(upload_to=file_upload, null=False)
+    data = models.FileField(upload_to=file_upload, null=False)
 
 
 class UserInput(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    value = models.CharField(max_length=1000)
+    data = models.CharField(max_length=1000)

@@ -9,7 +9,7 @@ def guess_file_category(file_name):
     file_type = mimetypes.guess_type(file_name)[0]
     for c in FILE_TYPES.keys():
         if file_type in FILE_TYPES[c]:
-            return c
+            return c, file_type
     return file_type
 
 

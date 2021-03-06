@@ -1,4 +1,5 @@
 import json
+import mimetypes
 from pathlib import Path
 import os
 from file_manager import State
@@ -33,7 +34,7 @@ class UploadState(State):
         elif choices[user_input] == "Начать ввод":
             raw_data = input()
             if os.path.isfile(raw_data):
-                files = {"file": open(raw_data, "rb")}
+                files = {"data": open(raw_data, "rb")}
                 self.context.api.create_file(files)
             else:
                 self.context.api.create_user_input(raw_data)
@@ -49,16 +50,17 @@ class DownloadState(State):
         self.actions.update({"Выбрать категорию": StartState})
 
     def download_file(self, category, file):
-        response = self.context.api.get_file(file["id"])
+        response = self.context.api.get_data(file["id"])
         if response.status_code == 200:
             path = Path(f"{self.context.storage_path}/{category['name']}/")
             path.mkdir(parents=True, exist_ok=True)
-            if not os.path.isfile(f"{path}/{file['value']}"):
+            file_name = f"{path}/{Tools.random_string()}{mimetypes.guess_extension(response.headers['content-type'])}"
+            if not os.path.isfile(file_name):
                 print(path)
-                with open(f"{path}/{file['value']}", "wb+") as destination:
+                with open(file_name, "wb+") as destination:
                     for chunk in response:
                         destination.write(chunk)
-            Tools.print_ok_message(f"Файл успешно загружен в {path}/{file['value']}")
+            Tools.print_ok_message(f"Файл успешно загружен в {file_name}")
 
     def get_choises(self, choices):
         choices["choose"].extend(list(base_actions.keys()))
@@ -73,7 +75,7 @@ class DownloadState(State):
         return values, choices
 
     def handle_user_input_download(self, category):
-        values, choices = self.download_choices(category, "value")
+        values, choices = self.download_choices(category, "name")
         choice = input()
         if choices[choice] in base_actions.keys():
             return base_actions[values[choice]]
@@ -82,15 +84,15 @@ class DownloadState(State):
         else:
             user_input = {}
             for d in values:
-                if d["value"] == choices[choice]:
+                if d["name"] == choices[choice]:
                     user_input = d
-            response = self.context.api.get_user_input(user_input["id"])
+            response = self.context.api.get_data(user_input["id"])
             if response.status_code == 200:
                 Tools.print_ok_message("Данные успешно получены.")
-                print(json.loads(response.text)["value"])
+                print(response.text)
 
     def handle_file_download(self, category):
-        files, choices = self.download_choices(category, "value")
+        files, choices = self.download_choices(category, "name")
         file_name_input = input()
         if choices[file_name_input] in base_actions.keys():
             return base_actions[files[file_name_input]]
@@ -99,7 +101,7 @@ class DownloadState(State):
         else:
             file = 0
             for d in files:
-                if d["value"] == choices[file_name_input]:
+                if d["name"] == choices[file_name_input]:
                     file = d
             self.download_file(category, file)
         return None
@@ -122,7 +124,7 @@ class DownloadState(State):
             for d in categories:
                 if d["name"] == choices[category_input]:
                     category = d
-                    if d["name"] == "Ручной ввод":
+                    if d["name"] == "Строки" or d["name"] == "Числа":
                         is_file = False
             if is_file:
                 return self.handle_file_download(category)

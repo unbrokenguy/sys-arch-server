@@ -18,13 +18,9 @@ class ServerApi:
         response = self.client.get(f"{self.url}/category/{category_id}/")
         return response
 
-    def get_file(self, file_id):
-        response = requests.get(f"{self.url}/file/{file_id}/")
-        return response
-
-    def get_user_input(self, user_input_id):
+    def get_data(self, file_id):
         response = self.client.get(
-            url=f"{self.url}/user_input/{user_input_id}/",
+            url=f"{self.url}/data/{file_id}/",
             headers=self.base_headers,
         )
         return response
@@ -32,9 +28,7 @@ class ServerApi:
     def create_file(self, file):
         response = self.client.post(
             url=f"{self.url}/file/",
-            headers=dict.copy(self.base_headers).update(
-                {"Content-Type": "multipart/form-data"}
-            ),
+            headers=self.base_headers,
             data={},
             files=file,
         )
@@ -43,9 +37,7 @@ class ServerApi:
     def create_user_input(self, value):
         response = self.client.post(
             url=f"{self.url}/user_input/",
-            headers=dict.copy(self.base_headers).update(
-                {"Content-Type": "application/json"}
-            ),
-            data={"value": value},
+            headers=self.base_headers,
+            data={"data": value},
         )
         return response

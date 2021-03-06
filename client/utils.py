@@ -1,4 +1,6 @@
 import json
+import random
+import string
 
 
 class Colors:
@@ -41,3 +43,9 @@ class Tools:
     @staticmethod
     def get_choose_dict(data):
         return {str(i): data["choose"][i] for i in range(len(data["choose"]))}
+
+    @staticmethod
+    def random_string():
+        return "".join(
+            random.choice(string.ascii_uppercase + string.digits) for _ in range(5)
+        )
