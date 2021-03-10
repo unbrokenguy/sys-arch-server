@@ -6,18 +6,18 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('rest_api', '0001_initial'),
+        ("rest_api", "0001_initial"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='file',
-            old_name='file',
-            new_name='data',
+            model_name="file",
+            old_name="file",
+            new_name="data",
         ),
         migrations.RenameField(
-            model_name='userinput',
-            old_name='value',
-            new_name='data',
+            model_name="userinput",
+            old_name="value",
+            new_name="data",
         ),
     ]

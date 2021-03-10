@@ -17,10 +17,10 @@ class CustomOrm:
 
     def __init__(self):
         self.USER = os.environ.get("DB_USER")
-        self.PASSWORD = os.environ.get("DB_PASSWORD"),
+        self.PASSWORD = (os.environ.get("DB_PASSWORD"),)
         self.HOST = os.environ.get("DB_HOST")
         self.NAME = os.environ.get("DB_NAME")
-        self.url = f'postgresql+psycopg2://{self.USER}:{self.PASSWORD}@{self.HOST}:5432/{self.NAME}'
+        self.url = f"postgresql+psycopg2://{self.USER}:{self.PASSWORD}@{self.HOST}:5432/{self.NAME}"
         self.engine = create_engine(self.url, echo=True)
         self.Base.metadata.create_all(self.engine, checkfirst=True)
         self.session_factory.configure(bind=self.engine)
