@@ -8,30 +8,29 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session, object_session
 from sqlalchemy.dialects.postgresql import OID
 
+from server import settings
+
 
 class CustomOrm:
-    db = {
-        "NAME": os.environ.get("DB_NAME"),
-        "USER": os.environ.get("DB_USER"),
-        "PASSWORD": os.environ.get("DB_PASSWORD"),
-        "HOST": os.environ.get("DB_HOST"),
-    }
     Base = declarative_base()
     session_factory = sessionmaker()
 
     def __init__(self):
-        self.engine = create_engine(
-            f'postgresql+psycopg2://{self.db["USER"]}:{self.db["PASSWORD"]}@'
-            f'{self.db["HOST"]}:5432'
-            f'/{self.db["NAME"]}',
-            echo=True,
-        )
+        self.USER = os.environ.get("DB_USER")
+        self.PASSWORD = os.environ.get("DB_PASSWORD"),
+        self.HOST = os.environ.get("DB_HOST")
+        self.NAME = os.environ.get("DB_NAME")
+        self.url = f'postgresql+psycopg2://{self.USER}:{self.PASSWORD}@{self.HOST}:5432/{self.NAME}'
+        self.engine = create_engine(self.url, echo=True)
         self.Base.metadata.create_all(self.engine, checkfirst=True)
         self.session_factory.configure(bind=self.engine)
         self.Session = scoped_session(self.session_factory)
 
     class Data(Base):
-        __tablename__ = "attachment"
+        if settings.DEBUG:
+            __tablename__ = "test_attachment"
+        else:
+            __tablename__ = "attachment"
         id = Column(Integer, primary_key=True)
         oid = Column(OID)
         category = Column(String(255), unique=True, default="Строки")
