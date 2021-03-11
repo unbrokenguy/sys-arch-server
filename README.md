@@ -24,4 +24,4 @@ cd src && python manage.py runserver
 
 ## Client
 
-[Репозиторий] https://github.com/unbrokenguy/sys-arch-client
+[Репозиторий]: https://github.com/unbrokenguy/sys-arch-client
