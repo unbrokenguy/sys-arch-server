@@ -12,12 +12,15 @@ from rest_api.utils import guess_file_category
 class DataViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
     def retrieve(self, request, *args, **kwargs):
         orm = CustomOrm()
+        checking = orm.get_category_file(kwargs["pk"])
         resp = orm.get_data_by_id_and_delete(kwargs["pk"])
         data = resp[0]
         content_type = resp[1]
         if data:
             return HttpResponse(data, content_type=content_type)
-        return HttpResponse(status=404)
+        elif checking:
+            return HttpResponse(data='{"message": "Невозможно получить запись, запись уже была получена." }', status=404)
+        return HttpResponse(data='{"message": "Невозможно получить запись, запись не сущесвует." }', status=404)
 
 
 class FileViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
@@ -37,7 +40,7 @@ class FileViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
         data = orm.create_data(_data, _category, _content_type)
         if data:
             return JsonResponse({"id": data.id, "category": data.category})
-        return HttpResponse(status=400)
+        return HttpResponse(data='{"message": "Невозможно создать запись, запись такой категории уже существует." }', status=400)
 
 
 class UserInputViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
@@ -51,7 +54,7 @@ class UserInputViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
         data = orm.create_data(data=_data, category=_category, content_type="plain/text")
         if data:
             return JsonResponse({"id": data.id, "category": data.category})
-        return HttpResponse(status=400)
+        return HttpResponse(ata='{"message": "Невозможно создать запись, запись такой категории уже существует." }',status=400)
 
 
 class CategoryViewSet(
@@ -67,4 +70,8 @@ class CategoryViewSet(
 
     def retrieve(self, request, *args, **kwargs):
         orm = CustomOrm()
-        return JsonResponse(orm.get_category_file(kwargs["pk"]), safe=False)
+        category = orm.get_category_file(kwargs["pk"])
+        if category:
+            return JsonResponse(category, safe=False)
+        return HttpResponse(data='{"message": "Невозможно получить данные, категория не существует." }', status=404)
+

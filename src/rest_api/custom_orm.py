@@ -90,5 +90,8 @@ class CustomOrm:
 
     def get_category_file(self, category_id):
         session = self.Session()
-        _category_data = session.query(self.Data).filter(self.Data.id == category_id)
-        return [{"id": _category_data[0].id, "name": "Скачать"}]
+        try:
+            _category_data = session.query(self.Data).filter(self.Data.id == category_id)
+            return [{"id": _category_data[0].id, "name": "Скачать"}]
+        except SQLAlchemyError:
+            return None
