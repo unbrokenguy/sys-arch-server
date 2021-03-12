@@ -19,8 +19,14 @@ class DataViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
         if data:
             return HttpResponse(data, content_type=content_type)
         elif checking:
-            return HttpResponse(data='{"message": "Невозможно получить запись, запись уже была получена." }', status=404)
-        return HttpResponse(data='{"message": "Невозможно получить запись, запись не сущесвует." }', status=404)
+            return HttpResponse(
+                data='{"message": "Невозможно получить запись, запись уже была получена." }',
+                status=404,
+            )
+        return HttpResponse(
+            data='{"message": "Невозможно получить запись, запись не сущесвует." }',
+            status=404,
+        )
 
 
 class FileViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
@@ -40,7 +46,10 @@ class FileViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
         data = orm.create_data(_data, _category, _content_type)
         if data:
             return JsonResponse({"id": data.id, "category": data.category})
-        return HttpResponse(data='{"message": "Невозможно создать запись, запись такой категории уже существует." }', status=400)
+        return HttpResponse(
+            data='{"message": "Невозможно создать запись, запись такой категории уже существует." }',
+            status=400,
+        )
 
 
 class UserInputViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
@@ -54,7 +63,10 @@ class UserInputViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
         data = orm.create_data(data=_data, category=_category, content_type="plain/text")
         if data:
             return JsonResponse({"id": data.id, "category": data.category})
-        return HttpResponse(ata='{"message": "Невозможно создать запись, запись такой категории уже существует." }',status=400)
+        return HttpResponse(
+            data='{"message": "Невозможно создать запись, запись такой категории уже существует." }',
+            status=400,
+        )
 
 
 class CategoryViewSet(
@@ -73,5 +85,7 @@ class CategoryViewSet(
         category = orm.get_category_file(kwargs["pk"])
         if category:
             return JsonResponse(category, safe=False)
-        return HttpResponse(data='{"message": "Невозможно получить данные, категория не существует." }', status=404)
-
+        return HttpResponse(
+            data='{"message": "Невозможно получить данные, категория не существует." }',
+            status=404,
+        )
