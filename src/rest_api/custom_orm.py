@@ -7,7 +7,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session, object_session
 from sqlalchemy.dialects.postgresql import OID
-
+from server.settings import DATABASE_URL
 from server import settings
 
 
@@ -16,21 +16,14 @@ class CustomOrm:
     session_factory = sessionmaker()
 
     def __init__(self):
-        self.USER = os.environ.get("DB_USER")
-        self.PASSWORD = os.environ.get("DB_PASSWORD")
-        self.HOST = os.environ.get("DB_HOST", "localhost")
-        self.NAME = os.environ.get("DB_NAME")
-        self.url = f"postgresql+psycopg2://{self.USER}:{self.PASSWORD}@{self.HOST}:5432/{self.NAME}"
+        self.url = DATABASE_URL
         self.engine = create_engine(self.url, echo=True)
         self.Base.metadata.create_all(self.engine, checkfirst=True)
         self.session_factory.configure(bind=self.engine)
         self.Session = scoped_session(self.session_factory)
 
     class Data(Base):
-        if settings.DEBUG:
-            __tablename__ = "test_attachment"
-        else:
-            __tablename__ = "attachment"
+        __tablename__ = "attachment"
         id = Column(Integer, primary_key=True)
         oid = Column(OID)
         category = Column(String(255), unique=True, default="Строки")
@@ -78,7 +71,8 @@ class CustomOrm:
             session.add(_data)
             session.commit()
             return _data
-        except SQLAlchemyError:
+        except SQLAlchemyError as e:
+            print(e)
             return None
 
     def get_categories_list(self):

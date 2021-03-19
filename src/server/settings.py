@@ -1,5 +1,6 @@
 import os
-
+import requests
+import json
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -14,7 +15,7 @@ SECRET_KEY = "&_n8*xky*^yj$#-h@_ughp^pm*(w0+ac+3&oa=y_0&2_#q_+&e"
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
-
+DATABASE_URL = json.loads(requests.get(url="http://127.0.0.1:8001/config/data").text)["url"]
 
 # Application definition
 
@@ -31,11 +32,13 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "corsheaders",
     "rest_api",
     "drf_yasg",
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",

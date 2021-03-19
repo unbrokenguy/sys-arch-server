@@ -1,4 +1,6 @@
 import re
+
+import requests
 from django.http import JsonResponse, HttpResponse
 from rest_framework import viewsets, mixins
 from rest_framework.parsers import FormParser, MultiPartParser
@@ -9,7 +11,19 @@ from rest_api.custom_orm import CustomOrm
 from rest_api.utils import guess_file_category
 
 
+def is_authenticated(func):
+    def wrapper(self, request, *args, **kwargs):
+        if "Authorization" in request.headers:
+            response = requests.get(url="http://localhost:8002/api/user", headers=request.headers)
+            if response.status_code == 200:
+                return func(self, request, *args, **kwargs)
+        return HttpResponse(status=404)
+    return wrapper
+
+
 class DataViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
+
+    @is_authenticated
     def retrieve(self, request, *args, **kwargs):
         orm = CustomOrm()
         checking = orm.get_category_file(kwargs["pk"])
@@ -20,11 +34,11 @@ class DataViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
             return HttpResponse(data, content_type=content_type)
         elif checking:
             return HttpResponse(
-                data='{"message": "Невозможно получить запись, запись уже была получена." }',
+                '{"message": "Невозможно получить запись, запись уже была получена." }',
                 status=404,
             )
         return HttpResponse(
-            data='{"message": "Невозможно получить запись, запись не сущесвует." }',
+            '{"message": "Невозможно получить запись, запись не сущесвует." }',
             status=404,
         )
 
@@ -38,6 +52,7 @@ class FileViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
     queryset = File.objects.all()
     serializer_class = FileSerializer
 
+    @is_authenticated
     def create(self, request, *args, **kwargs):
         orm = CustomOrm()
         _name = request.FILES["data"].name
@@ -46,16 +61,18 @@ class FileViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
         data = orm.create_data(_data, _category, _content_type)
         if data:
             return JsonResponse({"id": data.id, "category": data.category})
-        return HttpResponse(
-            data='{"message": "Невозможно создать запись, запись такой категории уже существует." }',
-            status=400,
-        )
+        else:
+            return HttpResponse(
+                '{"message": "Невозможно создать запись, запись такой категории уже существует." }',
+                status=400,
+            )
 
 
 class UserInputViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
     permission_classes = [AllowAny]
     serializer_class = UserInputSerializer
 
+    @is_authenticated
     def create(self, request, *args, **kwargs):
         orm = CustomOrm()
         _data = request.data["data"]
@@ -63,10 +80,11 @@ class UserInputViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
         data = orm.create_data(data=_data, category=_category, content_type="plain/text")
         if data:
             return JsonResponse({"id": data.id, "category": data.category})
-        return HttpResponse(
-            data='{"message": "Невозможно создать запись, запись такой категории уже существует." }',
-            status=400,
-        )
+        else:
+            return HttpResponse(
+                '{"message": "Невозможно создать запись, запись такой категории уже существует." }',
+                status=400,
+            )
 
 
 class CategoryViewSet(
@@ -76,16 +94,19 @@ class CategoryViewSet(
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
+    @is_authenticated
     def list(self, request, *args, **kwargs):
         orm = CustomOrm()
         return JsonResponse(orm.get_categories_list(), safe=False)
 
+    @is_authenticated
     def retrieve(self, request, *args, **kwargs):
         orm = CustomOrm()
         category = orm.get_category_file(kwargs["pk"])
         if category:
             return JsonResponse(category, safe=False)
-        return HttpResponse(
-            data='{"message": "Невозможно получить данные, категория не существует." }',
-            status=404,
-        )
+        else:
+            return HttpResponse(
+                '{"message": "Невозможно получить данные, категория не существует." }',
+                status=404,
+            )
