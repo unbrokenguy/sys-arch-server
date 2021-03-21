@@ -1,4 +1,3 @@
-import os
 from copy import copy
 
 from sqlalchemy import create_engine, event
@@ -8,7 +7,6 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session, object_session
 from sqlalchemy.dialects.postgresql import OID
 from server.settings import DATABASE_URL
-from server import settings
 
 
 class CustomOrm:

@@ -1,6 +1,7 @@
 import os
 import requests
 import json
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -15,7 +16,15 @@ SECRET_KEY = "&_n8*xky*^yj$#-h@_ughp^pm*(w0+ac+3&oa=y_0&2_#q_+&e"
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
-DATABASE_URL = json.loads(requests.get(url="http://127.0.0.1:8001/config/data").text)["url"]
+if not os.getenv("TEST"):
+    DATABASE_URL = json.loads(requests.get(url="http://127.0.0.1:8001/config/data").text)[
+        "url"
+    ]
+else:
+    DATABASE_URL = (
+        f"postgresql+psycopg2://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@"
+        f"localhost:5432/{os.getenv('POSTGRES_DB')}"
+    )
 
 # Application definition
 

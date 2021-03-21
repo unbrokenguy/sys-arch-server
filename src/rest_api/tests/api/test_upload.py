@@ -1,7 +1,7 @@
 import pytest
 from rest_framework import status
 
-from rest_api.tests.factories.factory import UserInputFactory, ImageFactory
+from rest_api.tests.factories.factory import UserInputFactory
 from rest_api.custom_orm import CustomOrm
 
 
