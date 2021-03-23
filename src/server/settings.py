@@ -10,14 +10,15 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "&_n8*xky*^yj$#-h@_ughp^pm*(w0+ac+3&oa=y_0&2_#q_+&e"
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 if not os.getenv("TEST"):
-    DATABASE_URL = json.loads(requests.get(url="http://127.0.0.1:8001/config/data").text)[
+    res = requests.get(url=f"http://{os.getenv('CONF_APP_IP')}/config/data").text
+    DATABASE_URL = json.loads(res)[
         "url"
     ]
 else:

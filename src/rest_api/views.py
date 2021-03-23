@@ -10,6 +10,8 @@ from rest_api.serializers import UserInputSerializer, FileSerializer, CategorySe
 from rest_api.models import File, Category
 from rest_api.custom_orm import CustomOrm
 from rest_api.utils import guess_file_category
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 
 
 def is_authenticated(func):
@@ -18,7 +20,7 @@ def is_authenticated(func):
             return func(self, request, *args, **kwargs)
         if "Authorization" in request.headers:
             response = requests.get(
-                url="http://localhost:8002/api/user/", headers=request.headers
+                url=f"http://{os.getenv('AUTH_APP_IP')}/api/user/", headers=request.headers
             )
             if response.status_code == 200:
                 return func(self, request, *args, **kwargs)
@@ -27,7 +29,13 @@ def is_authenticated(func):
     return wrapper
 
 
-class DataViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
+class DataViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.CreateModelMixin):
+    parser_classes = (
+        FormParser,
+        MultiPartParser,
+    )
+    permission_classes = [AllowAny]
+    serializer_class = FileSerializer
     @is_authenticated
     def retrieve(self, request, *args, **kwargs):
         orm = CustomOrm()
@@ -46,6 +54,33 @@ class DataViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
             '{"message": "Невозможно получить запись, запись не сущесвует." }',
             status=404,
         )
+
+    def create(self, request, *args, **kwargs):
+        orm = CustomOrm()
+        try:
+            _name = request.FILES["data"].name
+            _category, _content_type = guess_file_category(_name)
+            _data = request.FILES["data"].read()
+            data = orm.create_data(_data, _category, _content_type)
+            if data:
+                return JsonResponse({"id": data.id, "category": data.category})
+            else:
+                return HttpResponse(
+                    '{"message": "Невозможно создать запись, запись такой категории уже существует." }',
+                    status=400,
+                )
+        except Exception:
+            _data = request.data["data"]
+            _category = "Числа" if re.match(r"^[-+]?\d+([.,]\d+)?$", _data) else "Строки"
+            data = orm.create_data(data=_data, category=_category, content_type="plain/text")
+            if data:
+                return JsonResponse({"id": data.id, "category": data.category})
+            else:
+                return HttpResponse(
+                    '{"message": "Невозможно создать запись, запись такой категории уже существует." }',
+                    status=400,
+                )
+
 
 
 class FileViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):

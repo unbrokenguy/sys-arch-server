@@ -6,3 +6,4 @@ __pycache__/
 files/
 **/ __pycache__
 .python-version
+*.pytest_cache
