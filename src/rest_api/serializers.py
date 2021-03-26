@@ -1,19 +1,12 @@
 from rest_framework import serializers
-from rest_api.models import File
-from rest_api.models import UserInput
-from rest_api.models import Category
+from rest_api.models import Category, Data
 
 
-class FileSerializer(serializers.ModelSerializer):
+class DataSerializer(serializers.ModelSerializer):
     class Meta:
-        model = File
+        model = Data
         fields = ("id", "data")
 
-
-class UserInputSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserInput
-        fields = ("id", "data")
 
 
 class CategorySerializer(serializers.ModelSerializer):
