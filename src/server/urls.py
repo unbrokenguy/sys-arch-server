@@ -4,10 +4,13 @@ from server import settings
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework.permissions import AllowAny
+from rest_api.redirect_views import auth
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include("rest_api.urls")),
+    path("api/auth/<slug:method>/", auth)
 ]
 
 docs_schema_view = get_schema_view(
