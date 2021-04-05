@@ -121,9 +121,9 @@ USE_L10N = True
 
 USE_TZ = True
 
-STATIC_URL = "/static/"
+STATIC_URL = "/staticfiles/"
 PROJECT_ROOT = os.path.join(os.path.abspath(__file__))
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 MEDIA_URL = "/files/"
 MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), "files")
 # Static files (CSS, JavaScript, Images)
