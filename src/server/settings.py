@@ -16,18 +16,9 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
-if not os.getenv("TEST"):
-    res = requests.get(url=f"http://{os.getenv('CONF_APP_IP')}/config/data").text
-    DATABASE_URL = json.loads(res)[
-        "url"
-    ]
-else:
-    DATABASE_URL = (
-        f"postgresql+psycopg2://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@"
-        f"localhost:5432/{os.getenv('POSTGRES_DB')}"
-    )
-
-# Application definition
+res = requests.get(url=f"http://{os.getenv('CONF_APP_IP', 'localhost:8001')}/config/data").text
+db = json.loads(res)["url"]
+DATABASE_URL = db
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
