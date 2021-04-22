@@ -1,3 +1,7 @@
+# 
+![Build Status](https://img.shields.io/github/workflow/status/unbrokenguy/sys-arch-server/lint?label=linters)
+
+
 ## Use python >= 3.7
 
 ## Install poetry

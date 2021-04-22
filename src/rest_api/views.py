@@ -155,7 +155,7 @@ class CategoryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.Ret
         Returns:
             HttpResponse: Response with categories list in json
         """
-        return JsonResponse(DataBase.get_categories_list(), safe=False)
+        return JsonResponse([{"id": c[0], "name": c[1]} for c in DataBase.get_categories_list()], safe=False)
 
     @is_authenticated
     def retrieve(self, request, *args, **kwargs):
@@ -165,7 +165,7 @@ class CategoryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.Ret
         """
         category = DataBase.get_category_file(kwargs["pk"])
         if category:
-            return JsonResponse(category, safe=False)
+            return JsonResponse([{"id": category[0].id, "name": category[0].category}], safe=False)
         else:
             return HttpResponse(
                 '{"message": "Невозможно получить данные, категория не существует." }',

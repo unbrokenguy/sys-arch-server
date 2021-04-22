@@ -7,6 +7,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session, object_session
 from sqlalchemy.dialects.postgresql import OID
 from server.settings import DATABASE_URL
+from server.utils import SingletonMeta
 
 Base = declarative_base()
 
@@ -84,7 +85,18 @@ session_factory.configure(bind=engine)
 Session = scoped_session(session_factory)
 
 
-class DataBase:
+class DataBase(metaclass=SingletonMeta):
+    """Singleton
+    The DataBase class encapsulates methods for interacting with the sql database.
+    Due to the fact that all methods are static,
+    So no need to create more than one instance.
+    Methods:
+        get_data_by_id_and_delete: Retrieve data by id and delete it from database.
+        create_data: Create data in database.
+        get_categories_list: Retrieve list of Categories.
+        get_category_file: Retrieve file by category id.
+    """
+
     @staticmethod
     def get_data_by_id_and_delete(data_id):
         """
@@ -136,12 +148,11 @@ class DataBase:
         Category id == Data.id with this category.
         Category is unique value so on data one category.
         Returns:
-            List of Categories in json.
-            [{"id": int, "name": str}, ... ]
+            List of Categories.
         """
         session = Session()
         _categories = session.query().with_entities(Data.id, Data.category).all()
-        return [{"id": c[0], "name": c[1]} for c in _categories]
+        return _categories
 
     @staticmethod
     def get_category_file(category_id):
@@ -151,12 +162,11 @@ class DataBase:
             category_id: Id of Category (Data.id)
         Returns:
             If Data object exist return List with object in json format
-                [{"id": int, "name": "Скачать"}].
             If Error occurred return None.
         """
         session = Session()
         try:
             _category_data = session.query(Data).filter(Data.id == category_id)
-            return [{"id": _category_data[0].id, "name": "Скачать"}]
+            return _category_data
         except SQLAlchemyError:
             return None
