@@ -21,10 +21,16 @@ db = json.loads(res)["url"]
 DATABASE_URL = db
 
 REST_FRAMEWORK = {
-    "DEFAULT_PERMISSION_CLASSES": [
+    "DEFAULT_PARSER_CLASSES": (
+        "rest_framework.parsers.JSONParser",
+        "rest_framework.parsers.FormParser",
+        "rest_framework.parsers.MultiPartParser",
+    ),
+    "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.AllowAny",
-    ]
+    )
 }
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -37,12 +43,6 @@ INSTALLED_APPS = [
     "rest_api",
     "drf_yasg",
 ]
-
-DEFAULT_PARSER_CLASSES = (
-    "rest_framework.parsers.JSONParser",
-    "rest_framework.parsers.FormParser",
-    "rest_framework.parsers.MultiPartParser",
-)
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",

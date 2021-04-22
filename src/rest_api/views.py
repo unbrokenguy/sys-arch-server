@@ -104,7 +104,6 @@ class DataViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.Cre
     @is_authenticated
     def retrieve(self, request, *args, **kwargs):
         """GET method (<api>/data/{pk}/) that retrieve data by pk
-
         Returns:
              HttpResponse: HttpResponse with data if it was found or with status 404 and message
         """
@@ -127,9 +126,9 @@ class DataViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.Cre
         """POST method (<api>/data/) that creates data by strategy
         Args:
             request (HttpRequest): request With simple fDataBase where "data" field contains String or File
-
         Returns:
-            HttpResponse: Response with data in json or 404
+            HttpResponse: Response with data in json.
+            400 with message if file category already exists or request body does not contain data.
         """
         try:
             strategy = choose_strategy(request)
@@ -142,7 +141,9 @@ class DataViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.Cre
                     status=400,
                 )
         except KeyError:
-            return HttpResponse(status=400)
+            return HttpResponse(
+                '{"message": "Невозможно создать запись, неверный запрос." }',
+                status=400)
 
 
 class CategoryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
@@ -159,13 +160,13 @@ class CategoryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.Ret
 
     @is_authenticated
     def retrieve(self, request, *args, **kwargs):
-        """GET method (<api>/category/{pk}/) that retrieve category by pk
+        """GET method (<api>/category/{pk}/) that retrieve file by category pk
         Returns:
-            ReHttpResponse: response with category in json if it was found or 404
+            ReHttpResponse: response with file id and its category name in json if it was found or 404 with message.
         """
-        category = DataBase.get_category_file(kwargs["pk"])
-        if category:
-            return JsonResponse([{"id": category[0].id, "name": category[0].category}], safe=False)
+        file = DataBase.get_category_file(kwargs["pk"])
+        if file:
+            return JsonResponse([{"id": file[0].id, "name": file[0].category}], safe=False)
         else:
             return HttpResponse(
                 '{"message": "Невозможно получить данные, категория не существует." }',
