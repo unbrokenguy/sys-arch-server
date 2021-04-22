@@ -1,8 +1,12 @@
 from django.db import models
-from rest_api.utils import file_upload
 
 
 class DataField(models.Field):
+    """
+    Plug for Django automatic processes.
+    Custom field.
+    """
+
     description = "String or File"
 
     def __init__(self, *args, **kwargs):
@@ -10,9 +14,19 @@ class DataField(models.Field):
 
 
 class Category(models.Model):
+    """
+    Plug for Django automatic processes.
+    Describe Category Model.
+    """
+
     name = models.CharField(max_length=255, unique=True, blank=False)
 
 
 class Data(models.Model):
+    """
+    Plug for Django automatic processes.
+    Describe Data Model.
+    """
+
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     data = DataField()

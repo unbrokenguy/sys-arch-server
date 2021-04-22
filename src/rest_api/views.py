@@ -17,6 +17,7 @@ class UploadStrategy(ABC):
     """
     Upload strategy interface
     """
+
     @abstractmethod
     def upload(self, request):
         pass
@@ -26,6 +27,7 @@ class FileUploadStrategy(UploadStrategy):
     """
     Upload strategy implementation
     """
+
     def upload(self, request):
         """Creates file in a database
         Returns:
@@ -42,6 +44,7 @@ class UserInputUploadStrategy(UploadStrategy):
     """
     Upload strategy implementation
     """
+
     def upload(self, request):
         """Creates user_input in a database
         Returns:
@@ -57,13 +60,17 @@ def is_authenticated(func):
     """
     Function decorator that checks if request was made by authorized User
     """
+
     def wrapper(self, request, *args, **kwargs):
-        if os.getenv("TEST"):
-            return func(self, request, *args, **kwargs)
+        """
+        Checks if "Authorization" header is present in request.
+        If header is present tries to retrieve user by token from authorization server.
+        So if response status is OK executes the function that the user wants to execute.
+        Returns:
+             Result of function that the user wants to execute or 401 if user not authorized.
+        """
         if "Authorization" in request.headers:
-            response = requests.get(
-                url=f"http://{os.getenv('AUTH_APP_IP')}/api/user/", headers=request.headers
-            )
+            response = requests.get(url=f"http://{os.getenv('AUTH_APP_IP')}/api/user/", headers=request.headers)
             if response.status_code == 200:
                 return func(self, request, *args, **kwargs)
         return HttpResponse(status=401)
@@ -102,8 +109,7 @@ class DataViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.Cre
              HttpResponse: HttpResponse with data if it was found or with status 404 and message
         """
         checking = DataBase.get_category_file(kwargs["pk"])
-        resp = DataBase.get_data_by_id_and_delete(kwargs["pk"])
-        data, content_type = resp[0], resp[1]
+        data, content_type = DataBase.get_data_by_id_and_delete(kwargs["pk"])
         if data:
             return HttpResponse(data, content_type=content_type)
         elif checking:
@@ -139,9 +145,7 @@ class DataViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.Cre
             return HttpResponse(status=400)
 
 
-class CategoryViewSet(
-    viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin
-):
+class CategoryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
     permission_classes = [AllowAny]
     serializer_class = CategorySerializer
 

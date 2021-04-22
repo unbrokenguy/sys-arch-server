@@ -1,30 +1,18 @@
+"""All url paths
+POST api/auth/sign_in/ - Redirect to authorization server
+POST api/auth/sign_up/ - Redirect to authorization server
+POST api/data/ - Create data (strings or files)
+GET api/category/ - List of categories
+GET api/data/{pk}/ - Retrieve data
+GET api/category/{pk}/ - Retrieve category
+"""
 from django.contrib import admin
 from django.urls import path, include
-from server import settings
-from drf_yasg import openapi
-from drf_yasg.views import get_schema_view
-from rest_framework.permissions import AllowAny
 from rest_api.redirect_views import auth
 
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include("rest_api.urls")),
-    path("api/auth/<slug:method>/", auth)
+    path("api/auth/<slug:method>/", auth),
 ]
-
-docs_schema_view = get_schema_view(
-    openapi.Info(
-        title="Projects API",
-        default_version="v1",
-    ),
-    url="http://127.0.0.1:8000/docs/swagger/",
-    public=True,
-    permission_classes=(AllowAny,),
-)
-
-if settings.DEBUG:
-    docs_urls = [
-        path("swagger/", docs_schema_view.with_ui("swagger"), name="schema-swagger-ui"),
-    ]
-    urlpatterns += [path("docs/", include(docs_urls))]

@@ -8,7 +8,6 @@ class DataSerializer(serializers.ModelSerializer):
         fields = ("id", "data")
 
 
-
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category

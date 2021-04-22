@@ -1,11 +1,14 @@
 import mimetypes
 
 
-def file_upload(instance, filename: str) -> str:
-    return f"{guess_file_category(filename)}/{filename}"
-
-
 def guess_file_category(file_name):
+    """
+    Guess MIMETYPE of file by its name.
+    Args:
+        file_name: String with name of file.
+    Returns:
+        MIMETYPE of file.
+    """
     file_type = mimetypes.guess_type(file_name)[0]
     for c in FILE_TYPES.keys():
         if file_type in FILE_TYPES[c]:
@@ -13,7 +16,7 @@ def guess_file_category(file_name):
     return file_type
 
 
-FILE_TYPES = {
+FILE_TYPES = {  # Dictionary with human representation of MIMETYPES.
     "Картинки": [
         "image/bmp",
         "image/cgm",

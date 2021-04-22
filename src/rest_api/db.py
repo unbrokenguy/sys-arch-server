@@ -12,6 +12,16 @@ Base = declarative_base()
 
 
 class Data(Base):
+    """
+    SQLAlchemy model
+
+    Attributes:
+        id: Primary key.
+        oid: Id of Postgres LOB (Large Object).
+        category: LOB category string.
+        content_type: MIMETYPE of LOB.
+    """
+
     __tablename__ = "attachment"
     id = Column(Integer, primary_key=True)
     oid = Column(OID)
@@ -21,6 +31,14 @@ class Data(Base):
 
 @event.listens_for(Data, "after_delete")
 def remove_large_object_after_delete(_, connection, target):
+    """
+    Delete LOB from Postgres.
+    After delete event listener.
+    Args:
+        _: Meta
+        connection: Connection to database.
+        target: Deleted object.
+    """
     raw_connection = connection.connection
     l_obj = raw_connection.lobject(target.oid, "n")
     l_obj.unlink()
@@ -29,6 +47,14 @@ def remove_large_object_after_delete(_, connection, target):
 
 @event.listens_for(Data, "before_insert")
 def add_large_object_before_insert(_, connection, target):
+    """
+    Creates LOB in Postgres and set target.oid = LOB.oid
+    Before Insert event listener.
+    Args:
+        _: Meta
+        connection: Connection to database.
+        target: Created object.
+    """
     raw_connection = connection.connection
     l_obj = raw_connection.lobject(0, "wb", 0)
     target.oid = l_obj.oid
@@ -38,6 +64,12 @@ def add_large_object_before_insert(_, connection, target):
 
 @event.listens_for(Data, "load")
 def inject_large_object_after_load(target, _):
+    """
+    Every Data object call. Add attribute ldata to object with LOB data.
+    Args:
+        target: Created object.
+        _: kwargs.
+    """
     session = object_session(target)
     conn = session.get_bind().raw_connection()
     l_obj = conn.lobject(target.oid, "rb")
@@ -53,20 +85,37 @@ Session = scoped_session(session_factory)
 
 
 class DataBase:
-
     @staticmethod
     def get_data_by_id_and_delete(data_id):
+        """
+        Retrieve data by id and delete it from Postgres.
+        Args:
+            data_id: Primary key.
+        Returns:
+            if Data object with id == data_id exist returns obj.ldata and obj.content_type else None
+        """
         session = Session()
         data = session.query(Data).get(data_id)
         if data:
             ldata_copy, content_type_copy = copy(data.ldata), copy(data.content_type)
             session.delete(data)
             session.commit()
-            return [ldata_copy, content_type_copy]
+            return ldata_copy, content_type_copy
         return None
 
     @staticmethod
     def create_data(data, category, content_type):
+        """
+        Creates Data in Postgres.
+        Args:
+            data: File or String to create in db.
+            category: Data category string.
+            content_type: MIMETYPE of Data.
+
+        Returns:
+            If Data object created return object.
+            If Error occurred return None.
+        """
         session = Session()
         _data = Data()
         _data.ldata = data
@@ -76,24 +125,38 @@ class DataBase:
             session.add(_data)
             session.commit()
             return _data
-        except SQLAlchemyError as e:
-            print(e)
+        except SQLAlchemyError:
             return None
 
     @staticmethod
     def get_categories_list():
+        """
+        Retrieve list of categories that exists in Postgres.
+        Categories collection of all Data.category in Postgres.
+        Category id == Data.id with this category.
+        Category is unique value so on data one category.
+        Returns:
+            List of Categories in json.
+            [{"id": int, "name": str}, ... ]
+        """
         session = Session()
-        _categories = (
-            session.query().with_entities(Data.id, Data.category).all()
-        )
+        _categories = session.query().with_entities(Data.id, Data.category).all()
         return [{"id": c[0], "name": c[1]} for c in _categories]
 
     @staticmethod
     def get_category_file(category_id):
+        """
+        Retrieve list of Data in category.
+        Args:
+            category_id: Id of Category (Data.id)
+        Returns:
+            If Data object exist return List with object in json format
+                [{"id": int, "name": "Скачать"}].
+            If Error occurred return None.
+        """
         session = Session()
         try:
             _category_data = session.query(Data).filter(Data.id == category_id)
             return [{"id": _category_data[0].id, "name": "Скачать"}]
         except SQLAlchemyError:
             return None
-          
