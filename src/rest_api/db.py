@@ -96,3 +96,4 @@ class DataBase:
             return [{"id": _category_data[0].id, "name": "Скачать"}]
         except SQLAlchemyError:
             return None
+          
