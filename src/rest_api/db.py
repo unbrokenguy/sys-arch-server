@@ -104,7 +104,7 @@ class DataBase(metaclass=SingletonMeta):
         Args:
             data_id: Primary key.
         Returns:
-            if Data object with id == data_id exist returns obj.ldata and obj.content_type else None
+            if Data object with id == data_id exist returns obj.ldata and obj.content_type else None, None
         """
         session = Session()
         data = session.query(Data).get(data_id)
@@ -112,8 +112,9 @@ class DataBase(metaclass=SingletonMeta):
             ldata_copy, content_type_copy = copy(data.ldata), copy(data.content_type)
             session.delete(data)
             session.commit()
+            session.flush()
             return ldata_copy, content_type_copy
-        return None
+        return None, None
 
     @staticmethod
     def create_data(data, category, content_type):
@@ -138,6 +139,7 @@ class DataBase(metaclass=SingletonMeta):
             session.commit()
             return _data
         except SQLAlchemyError:
+            session.rollback()
             return None
 
     @staticmethod
@@ -152,6 +154,7 @@ class DataBase(metaclass=SingletonMeta):
         """
         session = Session()
         _categories = session.query().with_entities(Data.id, Data.category).all()
+        session.flush()
         return _categories
 
     @staticmethod
@@ -167,6 +170,7 @@ class DataBase(metaclass=SingletonMeta):
         session = Session()
         try:
             _category_data = session.query(Data).filter(Data.id == category_id)
-            return _category_data
+            return _category_data.all()[0] if len(_category_data.all()) > 0 else None
         except SQLAlchemyError:
+            session.rollback()
             return None

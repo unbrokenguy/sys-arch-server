@@ -117,7 +117,7 @@ class DataViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.Cre
                 status=404,
             )
         return HttpResponse(
-            '{"message": "Невозможно получить запись, запись не сущесвует." }',
+            '{"message": "Невозможно получить запись, не сущесвует." }',
             status=404,
         )
 
@@ -166,7 +166,7 @@ class CategoryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.Ret
         """
         file = DataBase.get_category_file(kwargs["pk"])
         if file:
-            return JsonResponse([{"id": file[0].id, "name": file[0].category}], safe=False)
+            return JsonResponse([{"id": file.id, "name": file.category}], safe=False)
         else:
             return HttpResponse(
                 '{"message": "Невозможно получить данные, категория не существует." }',
