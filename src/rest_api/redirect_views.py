@@ -15,7 +15,7 @@ def auth(request, method):
         elif method == "sign_up":
             credentials = {"email": request.POST["email"], "password": request.POST["password"],
                            "first_name": request.POST["first_name"], "last_name": request.POST["last_name"]}
-        res = requests.post(url=f"http://{os.getenv('AUTH_APP_IP')}/api/auth/{method}/", data=credentials, headers=request.headers)
+        res = requests.post(url=f"http://{os.getenv('AUTH_APP_IP', 'localhost:8002')}/api/auth/{method}/", data=credentials, headers=request.headers)
         if res.status_code == 200:
             return JsonResponse(data=json.loads(res.text), status=200)
         else:
