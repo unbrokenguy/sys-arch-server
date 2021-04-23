@@ -141,9 +141,7 @@ class DataViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.Cre
                     status=400,
                 )
         except KeyError:
-            return HttpResponse(
-                '{"message": "Невозможно создать запись, неверный запрос." }',
-                status=400)
+            return HttpResponse('{"message": "Невозможно создать запись, неверный запрос." }', status=400)
 
 
 class CategoryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
