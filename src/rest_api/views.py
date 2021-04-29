@@ -36,7 +36,7 @@ class FileUploadStrategy(UploadStrategy):
         _name = request.FILES["data"].name
         _category, _content_type = guess_file_category(_name)
         _data = request.FILES["data"].read()
-        data = DataBase.create_data(_data, _category, _content_type)
+        data = DataBase.create_data(data=_data, category=_category, content_type=_content_type, filename=_name)
         return data
 
 
@@ -52,7 +52,7 @@ class UserInputUploadStrategy(UploadStrategy):
         """
         _data = request.data["data"]
         _category = "Числа" if re.match(r"^[-+]?\d+([.,]\d+)?$", _data) else "Строки"
-        data = DataBase.create_data(data=_data, category=_category, content_type="plain/text")
+        data = DataBase.create_data(data=_data, category=_category, content_type="plain/text", filename="")
         return data
 
 
@@ -110,7 +110,11 @@ class DataViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.Cre
         checking = DataBase.get_category_file(kwargs["pk"])
         data, content_type = DataBase.get_data_by_id_and_delete(kwargs["pk"])
         if data:
-            return HttpResponse(data, content_type=content_type)
+            response = HttpResponse()
+            response.write(data.ldata)
+            response['Content-Type'] = data.content_type
+            response['Content-Disposition'] = f'attachment; filename="{data.name}"'
+            return response
         elif checking:
             return HttpResponse(
                 '{"message": "Невозможно получить запись, запись уже была получена." }',

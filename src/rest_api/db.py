@@ -27,6 +27,7 @@ class Data(Base):
     id = Column(Integer, primary_key=True)
     oid = Column(OID)
     category = Column(String(255), unique=True, default="Строки")
+    name = Column(String(255), default="")
     content_type = Column(String(255), nullable=True)
 
 
@@ -109,18 +110,19 @@ class DataBase(metaclass=SingletonMeta):
         session = Session()
         data = session.query(Data).get(data_id)
         if data:
-            ldata_copy, content_type_copy = copy(data.ldata), copy(data.content_type)
+            data_copy, content_type_copy = copy(data), copy(data.content_type)
             session.delete(data)
             session.commit()
             session.flush()
-            return ldata_copy, content_type_copy
+            return data_copy, content_type_copy
         return None, None
 
     @staticmethod
-    def create_data(data, category, content_type):
+    def create_data(data, category, content_type, filename):
         """
         Creates Data in Postgres.
         Args:
+            filename: Original file name.
             data: File or String to create in db.
             category: Data category string.
             content_type: MIMETYPE of Data.
@@ -134,6 +136,7 @@ class DataBase(metaclass=SingletonMeta):
         _data.ldata = data
         _data.category = category
         _data.content_type = content_type
+        _data.name = filename
         try:
             session.add(_data)
             session.commit()

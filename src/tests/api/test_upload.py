@@ -71,7 +71,7 @@ def test_user_input_upload_success():
 @pytest.mark.django_db
 def test_user_input_upload_fail():
     user_input = fake.sentence(nb_words=10)
-    _data = DataBase.create_data(data=user_input, category="Строки", content_type="plain/text")
+    _data = DataBase.create_data(data=user_input, category="Строки", content_type="plain/text", filename="")
     response = requests.post(host_url + "/api/user_input/", data={"data": user_input}, headers=headers)
     _data = DataBase.get_data_by_id_and_delete(data_id=_data.id)
     assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -80,7 +80,7 @@ def test_user_input_upload_fail():
 @pytest.mark.django_db
 def test_category_list_success():
     user_input = fake.sentence(nb_words=10)
-    _data = DataBase.create_data(data=user_input, category="Строки", content_type="plain/text")
+    _data = DataBase.create_data(data=user_input, category="Строки", content_type="plain/text", filename="")
     response = requests.get(host_url + "/api/category/", headers=headers)
     assert response.status_code == status.HTTP_200_OK
     assert len(response.json()) == len(DataBase.get_categories_list())

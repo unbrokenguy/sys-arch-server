@@ -13,18 +13,6 @@ from server.settings import DATABASE_URL
 
 def main():
     """Run administrative tasks."""
-    url = DATABASE_URL
-    Base = declarative_base()
-    engine = create_engine(url, echo=True)
-    Table(
-        "attachment",
-        Base.metadata,
-        Column("id", Integer, primary_key=True),
-        Column("oid", OID),
-        Column("category", String(255), unique=True, default="Строки"),
-        Column("content_type", String(255), nullable=True),
-    )
-    Base.metadata.create_all(engine, checkfirst=True)
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
     try:
         from django.core.management import execute_from_command_line
