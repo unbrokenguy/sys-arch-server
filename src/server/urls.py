@@ -8,7 +8,7 @@ GET api/category/{pk}/ - Retrieve category
 """
 from django.contrib import admin
 from django.urls import path, include
-from rest_api.redirect_views import auth
+from rest_api.views import auth
 
 
 urlpatterns = [
