@@ -8,6 +8,7 @@ class UploadStrategy:
     """
     Upload strategy interface
     """
+
     def upload(self, request):
         pass
 

@@ -3,13 +3,6 @@
 import os
 import sys
 
-from sqlalchemy import String, create_engine
-from sqlalchemy import Table, Column, Integer
-from sqlalchemy.dialects.postgresql import OID
-from sqlalchemy.ext.declarative import declarative_base
-
-from server.settings import DATABASE_URL
-
 
 def main():
     """Run administrative tasks."""
