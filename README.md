@@ -7,6 +7,12 @@
 * [Related repositories](#related-repositories)
 ## Installation
 
+#### Install Python >= 3.7
+https://www.python.org/downloads/
+
+#### Clone this repository or download zip archive and unzip it
+git clone https://github.com/unbrokenguy/sys-arch-server.git
+
 #### Install poetry
 ```shell
 pip install poetry
